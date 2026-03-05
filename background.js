@@ -24,8 +24,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const winId = sender.tab ? sender.tab.windowId : null;
   
   if (msg.action === "INIT_TAB" && winId) {
-    chrome.storage.local.get(winId.toString()).then(data => {
-      sendResponse({ data: data[winId] });
+    Promise.all([
+      chrome.storage.local.get(winId.toString()),
+      chrome.storage.local.get('footerHeight')
+    ]).then(([winData, heightData]) => {
+      sendResponse({
+        data: winData[winId],
+        height: heightData.footerHeight || 25
+      });
     });
     return true; // Keep message channel open for async response
   }

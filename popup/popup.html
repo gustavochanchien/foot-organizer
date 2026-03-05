@@ -2,42 +2,375 @@
 <html>
 <head>
   <style>
-    body { width: 220px; font-family: system-ui, sans-serif; padding: 15px; margin: 0; text-align: center; background: #fafafa; position: relative; }
-    h3 { margin-top: 0; font-size: 16px; color: #333; margin-bottom: 2px; }
-    .info-text { font-size: 11px; color: #777; margin-top: 0; margin-bottom: 12px; }
-    
-    .color-grid { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
-    .swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.1); transition: transform 0.1s; flex-shrink: 0; }
-    .swatch:hover { transform: scale(1.15); }
-    
-    .custom-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
-    input[type="color"] { flex-grow: 1; height: 32px; cursor: pointer; border: none; padding: 0; border-radius: 4px; }
-    
-    #btn-add { padding: 8px 12px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    #btn-add:hover { background: #3367d6; }
-    #btn-reset { width: 100%; padding: 10px; cursor: pointer; background: #fff; border: 1px solid #ddd; border-radius: 4px; color: #d32f2f; font-weight: bold; }
-    #btn-reset:hover { background: #ffebee; }
+    * { box-sizing: border-box; }
+
+    body {
+      width: 280px;
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 20px;
+      margin: 0;
+      text-align: center;
+      background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+      position: relative;
+      color: #333;
+    }
+
+    h3 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f1f1f;
+      letter-spacing: -0.3px;
+    }
+
+    .info-text {
+      font-size: 12px;
+      color: #888;
+      margin: 0 0 20px 0;
+      font-weight: 500;
+    }
+
+    .color-grid {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .swatch {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid rgba(0,0,0,0.12);
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    }
+
+    .swatch:hover {
+      transform: scale(1.2);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .swatch:active {
+      transform: scale(1.15);
+    }
+
+    .swatch.active {
+      border: 3px solid white;
+      box-shadow: 0 0 0 2.5px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .swatch.drag-over {
+      border: 2px dashed #4285f4;
+      transform: scale(1.15);
+    }
+
+    .custom-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      align-items: center;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    input[type="color"] {
+      flex-grow: 1;
+      height: 40px;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      transition: box-shadow 0.2s ease;
+    }
+
+    input[type="color"]:hover {
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    #btn-add {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(66, 133, 244, 0.3);
+      white-space: nowrap;
+    }
+
+    #btn-add:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(66, 133, 244, 0.4);
+    }
+
+    #btn-add:active {
+      transform: translateY(0);
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      text-align: left;
+    }
+
+    .slider-label {
+      font-size: 12px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: white;
+      color: #333;
+      transition: border-color 0.2s ease;
+    }
+
+    input[type="number"]:hover {
+      border-color: #4285f4;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #4285f4;
+      box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+    }
+
+    #btn-reset {
+      width: 100%;
+      padding: 12px;
+      cursor: pointer;
+      background: white;
+      border: 1.5px solid #e74c3c;
+      border-radius: 6px;
+      color: #e74c3c;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    #btn-reset:hover {
+      background: #fef5f5;
+      box-shadow: 0 2px 6px rgba(231, 76, 60, 0.2);
+      transform: translateY(-1px);
+    }
+
+    #btn-reset:active {
+      transform: translateY(0);
+    }
+
+    details {
+      margin-top: 8px;
+    }
+
+    details summary {
+      font-size: 12px;
+      color: #999;
+      cursor: pointer;
+      text-align: center;
+      list-style: none;
+      padding: 4px 0;
+      user-select: none;
+    }
+
+    details summary::-webkit-details-marker { display: none; }
+
+    details summary:hover {
+      color: #666;
+    }
+
+    details[open] summary {
+      margin-bottom: 8px;
+    }
+
+    #btn-reset-all {
+      width: 100%;
+      padding: 12px;
+      cursor: pointer;
+      background: white;
+      border: 1.5px solid #e74c3c;
+      border-radius: 6px;
+      color: #e74c3c;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    #btn-reset-all:hover {
+      background: #fef5f5;
+      box-shadow: 0 2px 6px rgba(231, 76, 60, 0.2);
+      transform: translateY(-1px);
+    }
+
+    #btn-reset-all:active {
+      transform: translateY(0);
+    }
 
     /* Custom Context Menu Styles */
-    #context-menu { 
-      display: none; 
-      position: absolute; 
-      background: white; 
-      border: 1px solid #ccc; 
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
-      padding: 6px 12px; 
-      border-radius: 4px; 
-      cursor: pointer; 
-      font-size: 12px; 
-      color: #d32f2f; 
-      font-weight: bold; 
-      z-index: 1000; 
+    #context-menu {
+      display: none;
+      position: absolute;
+      background: white;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #e74c3c;
+      font-weight: 600;
+      z-index: 1000;
+      transition: all 0.15s ease;
     }
-    #context-menu:hover { background: #ffebee; }
+
+    #context-menu:hover {
+      background: #fef5f5;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    }
+
+    /* Dark Mode */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: linear-gradient(135deg, #1a1a1a 0%, #202020 100%);
+        color: #e0e0e0;
+      }
+
+      h3 {
+        color: #f5f5f5;
+      }
+
+      .info-text {
+        color: #a0a0a0;
+      }
+
+      .color-grid {
+        background: #2a2a2a;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+
+      .swatch {
+        border-color: rgba(255,255,255,0.15);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+
+      .swatch:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      }
+
+      .custom-row {
+        background: #2a2a2a;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+
+      input[type="color"] {
+        background: #333;
+        box-shadow: inset 0 0 0 2px #444, 0 1px 2px rgba(0,0,0,0.3);
+        filter: brightness(0.9);
+      }
+
+      input[type="color"]:hover {
+        background: #3a3a3a;
+        box-shadow: inset 0 0 0 2px #4a4a4a, 0 2px 4px rgba(0,0,0,0.4);
+      }
+
+      .slider-row {
+        background: #2a2a2a;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+
+      .slider-label {
+        color: #a0a0a0;
+      }
+
+      input[type="number"] {
+        background: #333;
+        border-color: #444;
+        color: #e0e0e0;
+      }
+
+      input[type="number"]:hover {
+        border-color: #4285f4;
+      }
+
+      input[type="number"]:focus {
+        border-color: #4285f4;
+        box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+      }
+
+      #btn-reset {
+        background: transparent;
+        border-color: #e74c3c;
+        color: #ff6b5b;
+      }
+
+      #btn-reset:hover {
+        background: rgba(231, 76, 60, 0.1);
+        box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
+      }
+
+      details summary {
+        color: #555;
+      }
+
+      details summary:hover {
+        color: #888;
+      }
+
+      #btn-reset-all {
+        background: transparent;
+        border-color: #e74c3c;
+        color: #ff6b5b;
+      }
+
+      #btn-reset-all:hover {
+        background: rgba(231, 76, 60, 0.1);
+        box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
+      }
+
+      #context-menu {
+        background: #2a2a2a;
+        border-color: #3a3a3a;
+        color: #ff6b5b;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      }
+
+      #context-menu:hover {
+        background: rgba(231, 76, 60, 0.1);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+      }
+    }
   </style>
 </head>
 <body>
-  <h3>Peacock-Style Footer</h3>
+  <h3>Footer Organizer</h3>
   <p class="info-text">Right-click a color to delete</p>
   
   <div class="color-grid" id="presets"></div>
@@ -47,7 +380,17 @@
     <button id="btn-add">Add Color</button>
   </div>
 
-  <button id="btn-reset">Remove Footer</button>
+  <div class="slider-row">
+    <label class="slider-label">Footer Height (px):</label>
+    <input type="number" id="footer-height" min="4" max="48" value="25" step="1">
+  </div>
+
+  <button id="btn-reset">Remove Footer (This Window)</button>
+
+  <details>
+    <summary>▸ More options</summary>
+    <button id="btn-reset-all">Remove Footer (All Windows)</button>
+  </details>
 
   <div id="context-menu">Delete</div>
 

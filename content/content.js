@@ -13,6 +13,7 @@ function getContrastColor(hexColor) {
 let footerContainer, labelInput;
 let isTyping = false;
 let typingTimer;
+let currentHeight = 25;
 
 function injectFooter() {
   if (document.getElementById('peacock-host')) return;
@@ -31,9 +32,9 @@ function injectFooter() {
     }
   `;
   shadow.appendChild(styleBlock);
-  
+
   footerContainer = document.createElement('div');
-  footerContainer.style.cssText = 'width: 100%; height: 25px; display: none; align-items: center; justify-content: flex-start; padding-left: 15px; box-sizing: border-box; pointer-events: auto; font-family: system-ui, sans-serif; box-shadow: 0 -4px 12px rgba(0,0,0,0.35), 0 -1px 3px rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.15); transition: background-color 0.2s;';
+  footerContainer.style.cssText = `width: 100%; height: ${currentHeight}px; display: none; align-items: center; justify-content: flex-start; padding-left: 15px; box-sizing: border-box; pointer-events: auto; font-family: system-ui, sans-serif; box-shadow: 0 -4px 12px rgba(0,0,0,0.35), 0 -1px 3px rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.15); transition: background-color 0.2s, height 0.15s;`;
 
   labelInput = document.createElement('input');
   labelInput.type = 'text';
@@ -48,7 +49,7 @@ function injectFooter() {
     clearTimeout(typingTimer);
     typingTimer = setTimeout(() => {
       chrome.runtime.sendMessage({ action: "SAVE_LABEL", label: labelInput.value });
-    }, 500); 
+    }, 500);
   });
 
   footerContainer.appendChild(labelInput);
@@ -66,40 +67,53 @@ function setPushUpPadding(enable) {
     if (!styleEl) {
       styleEl = document.createElement('style');
       styleEl.id = 'peacock-push-style';
-      styleEl.textContent = `
-        /* 1. Push up normal scrolling websites */
-        html, body { 
-            padding-bottom: 25px !important; 
-        }
-        
-        /* 2. Shrink fullscreen SPAs so they don't hide under the footer */
-        .h-svh, .h-dvh, .h-screen { 
-            max-height: calc(100vh - 25px) !important; 
-        }
-      `;
       document.head.appendChild(styleEl);
     }
+    styleEl.textContent = `
+      /* 1. Push up normal scrolling websites */
+      html, body {
+          padding-bottom: ${currentHeight}px !important;
+      }
+
+      /* 2. Shrink fullscreen SPAs so they don't hide under the footer */
+      .h-svh, .h-dvh, .h-screen {
+          max-height: calc(100vh - ${currentHeight}px) !important;
+      }
+    `;
   } else {
     if (styleEl) styleEl.remove();
   }
 }
 
+// --- Update footer height ---
+function updateHeight(h) {
+  currentHeight = h;
+  if (footerContainer) {
+    footerContainer.style.height = h + 'px';
+  }
+  // Refresh push padding if footer is currently visible
+  const styleEl = document.getElementById('peacock-push-style');
+  if (styleEl) {
+    setPushUpPadding(true);
+  }
+}
+
 function renderFooter(data) {
   if (!footerContainer) injectFooter();
-  
+
   if (!data || !data.color) {
     footerContainer.style.display = 'none';
-    setPushUpPadding(false); 
+    setPushUpPadding(false);
     return;
   }
 
   footerContainer.style.display = 'flex';
   footerContainer.style.backgroundColor = data.color;
-  
+
   if (!isTyping) {
     labelInput.value = data.label || "";
   }
-  
+
   setPushUpPadding(true);
 
   const textColor = getContrastColor(data.color);
@@ -112,9 +126,13 @@ function renderFooter(data) {
 injectFooter();
 
 chrome.runtime.sendMessage({ action: "INIT_TAB" }, (response) => {
-  if (response && response.data) renderFooter(response.data);
+  if (response) {
+    if (response.height) updateHeight(response.height);
+    if (response.data) renderFooter(response.data);
+  }
 });
 
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.action === "UPDATE_FOOTER") renderFooter(msg.data);
+  if (msg.action === "UPDATE_HEIGHT") updateHeight(msg.height);
 });
