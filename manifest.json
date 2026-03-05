@@ -17,6 +17,11 @@
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
+    },
+    "dark": {
+      "16": "icons/icon16_dark.png",
+      "48": "icons/icon48_dark.png",
+      "128": "icons/icon128_dark.png"
     }
   },
   "background": {
