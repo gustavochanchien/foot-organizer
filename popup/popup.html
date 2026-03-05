@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 220px; font-family: system-ui, sans-serif; padding: 15px; margin: 0; text-align: center; background: #fafafa; position: relative; }
+    h3 { margin-top: 0; font-size: 16px; color: #333; margin-bottom: 2px; }
+    .info-text { font-size: 11px; color: #777; margin-top: 0; margin-bottom: 12px; }
+    
+    .color-grid { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
+    .swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.1); transition: transform 0.1s; flex-shrink: 0; }
+    .swatch:hover { transform: scale(1.15); }
+    
+    .custom-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+    input[type="color"] { flex-grow: 1; height: 32px; cursor: pointer; border: none; padding: 0; border-radius: 4px; }
+    
+    #btn-add { padding: 8px 12px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    #btn-add:hover { background: #3367d6; }
+    #btn-reset { width: 100%; padding: 10px; cursor: pointer; background: #fff; border: 1px solid #ddd; border-radius: 4px; color: #d32f2f; font-weight: bold; }
+    #btn-reset:hover { background: #ffebee; }
+
+    /* Custom Context Menu Styles */
+    #context-menu { 
+      display: none; 
+      position: absolute; 
+      background: white; 
+      border: 1px solid #ccc; 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
+      padding: 6px 12px; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 12px; 
+      color: #d32f2f; 
+      font-weight: bold; 
+      z-index: 1000; 
+    }
+    #context-menu:hover { background: #ffebee; }
+  </style>
+</head>
+<body>
+  <h3>Peacock-Style Footer</h3>
+  <p class="info-text">Right-click a color to delete</p>
+  
+  <div class="color-grid" id="presets"></div>
+
+  <div class="custom-row">
+    <input type="color" id="custom-color" value="#000000">
+    <button id="btn-add">Add Color</button>
+  </div>
+
+  <button id="btn-reset">Remove Footer</button>
+
+  <div id="context-menu">Delete</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
