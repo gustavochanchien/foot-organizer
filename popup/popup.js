@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Drag state
   let dragSrcEl = null;
+  let heightDebounceTimer;
 
   const defaultColors = [
     { name: "Dark Red", value: "#9d2206" },
@@ -30,13 +31,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // --- Helper: Highlight the active swatch ---
   const highlightActiveSwatch = (color) => {
-    presetsContainer.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
-    if (color) {
-      const target = [...presetsContainer.querySelectorAll('.swatch')].find(
-        s => s.dataset.color === color
-      );
-      if (target) target.classList.add('active');
-    }
+    presetsContainer.querySelectorAll('.swatch').forEach(s => {
+      s.classList.toggle('active', s.dataset.color === color);
+    });
   };
 
   // --- Helper: Apply color to the current window ---
@@ -121,10 +118,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       let yPos = e.pageY;
 
       const menuWidth = contextMenu.offsetWidth;
+      const menuHeight = contextMenu.offsetHeight;
       const popupWidth = document.body.clientWidth;
-      if (xPos + menuWidth > popupWidth) {
-        xPos = popupWidth - menuWidth - 5;
-      }
+      const popupHeight = document.body.clientHeight;
+      if (xPos + menuWidth > popupWidth) xPos = popupWidth - menuWidth - 5;
+      if (yPos + menuHeight > popupHeight) yPos = popupHeight - menuHeight - 5;
 
       contextMenu.style.left = `${xPos}px`;
       contextMenu.style.top = `${yPos}px`;
@@ -202,6 +200,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   heightSlider.value = initialHeight;
   heightValueEl.textContent = initialHeight;
 
+  // Set the toolbar icon to match the current color scheme
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  chrome.action.setIcon({
+    path: {
+      "16": isDark ? "icons/icon16_dark.png" : "icons/icon16.png",
+      "48": isDark ? "icons/icon48_dark.png" : "icons/icon48.png",
+      "128": isDark ? "icons/icon128_dark.png" : "icons/icon128.png",
+    }
+  });
+
   // --- Event Listeners ---
   btnAdd.addEventListener('click', async () => {
     const newColorHex = customColorInput.value;
@@ -218,7 +226,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       createSwatch(newColorObj);
     }
 
-    applyColorToWindow(newColorHex);
+    await applyColorToWindow(newColorHex);
   });
 
   btnReset.addEventListener('click', () => applyColorToWindow(null));
@@ -238,14 +246,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     highlightActiveSwatch(null);
   });
 
-  heightSlider.addEventListener('input', async () => {
+  heightSlider.addEventListener('input', () => {
     const h = parseInt(heightSlider.value);
     heightValueEl.textContent = h;
-    await chrome.storage.local.set({ footerHeight: h });
-
-    const allTabs = await chrome.tabs.query({});
-    allTabs.forEach(tab => {
-      chrome.tabs.sendMessage(tab.id, { action: "UPDATE_HEIGHT", height: h }).catch(() => {});
-    });
+    clearTimeout(heightDebounceTimer);
+    heightDebounceTimer = setTimeout(async () => {
+      await chrome.storage.local.set({ footerHeight: h });
+      const allTabs = await chrome.tabs.query({});
+      allTabs.forEach(tab => {
+        chrome.tabs.sendMessage(tab.id, { action: "UPDATE_HEIGHT", height: h }).catch(() => {});
+      });
+    }, 200);
   });
 });

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Footer Visual Window Organizer",
-  "version": "1.0",
+  "version": "2.0",
   "description": "Organize your browser windows with a visual footer indicator. Easily identify and manage multiple windows with distinct visual markers.",
   "permissions": ["storage", "tabs"],
   "host_permissions": ["<all_urls>"],
@@ -17,11 +17,6 @@
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
-    },
-    "dark": {
-      "16": "icons/icon16_dark.png",
-      "48": "icons/icon48_dark.png",
-      "128": "icons/icon128_dark.png"
     }
   },
   "background": {

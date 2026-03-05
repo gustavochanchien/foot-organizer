@@ -67,7 +67,7 @@ function setPushUpPadding(enable) {
     if (!styleEl) {
       styleEl = document.createElement('style');
       styleEl.id = 'peacock-push-style';
-      document.head.appendChild(styleEl);
+      (document.head || document.documentElement).appendChild(styleEl);
     }
     styleEl.textContent = `
       /* 1. Push up normal scrolling websites */
